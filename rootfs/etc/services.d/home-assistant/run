@@ -10,4 +10,15 @@ if [[ -z "${DISABLE_JEMALLOC+x}" ]]; then
   export LD_PRELOAD="/usr/local/lib/libjemalloc.so.2"
   export MALLOC_CONF="background_thread:true,metadata_thp:auto,dirty_decay_ms:20000,muzzy_decay_ms:20000"
 fi
-exec python3 -m homeassistant --config /config
+
+# Allow Docker to pass in values for Log File
+if [ -n "${LOG_FILE}" ]; then
+  export LOG_FILE="--log-file $LOG_FILE"
+fi
+
+# Allow Docker to pass in values for Log Rotation
+if [ -n "${LOG_ROTATE}" ]; then
+  export LOG_ROTATE="--log-rorate-days $LOG_ROTATE"
+fi
+
+exec python3 -m homeassistant --config /config --log-file $LOG_FILE $LOG_ROTATE $HASS_ARGUMENTS
